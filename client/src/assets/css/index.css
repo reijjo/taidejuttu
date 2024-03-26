@@ -1,0 +1,92 @@
+#root {
+  --primary: lightblue;
+
+  --secondary: ;
+
+  --bg: lightblue;
+  --bg2: ;
+
+  --text: ;
+
+  --black: #0c0c0c;
+  --white: #f1f1f1;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-size: 16px;
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Calistoga", serif;
+  font-weight: 300;
+}
+
+main {
+  display: grid;
+  grid-template-rows: 10vh 1fr 10vh;
+
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Navbar & Footer */
+nav,
+footer {
+  background-color: var(--bg);
+  color: var(--black);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0 24px;
+
+  text-transform: uppercase;
+}
+
+nav {
+  font-weight: 600;
+  justify-content: space-between;
+}
+
+.navbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+
+  a {
+    padding: 0 16px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  a:hover {
+    cursor: pointer;
+    background-color: lightcoral;
+  }
+
+  button {
+    padding: 8px 16px;
+    margin-left: 16px;
+  }
+}
+
+footer {
+  justify-content: start;
+  font-weight: 600;
+}
