@@ -1,0 +1,105 @@
+.nav-button {
+  padding: 12px 24px;
+  margin: 0 16px;
+}
+
+.saldo {
+  border: 1px solid var(--primary-600);
+  border-radius: 8px;
+  background-color: var(--white);
+
+  width: 200px;
+
+  position: absolute;
+  top: 16px;
+  right: 32px;
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px 16px;
+
+  z-index: 1;
+}
+
+.erittely {
+  padding-top: 16px;
+
+  position: relative;
+
+  /* border: 1px solid black; */
+  width: 100%;
+  height: 100%;
+}
+
+.ostot,
+.myynnit,
+.total {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  align-items: center;
+}
+
+.ostot {
+  padding-top: 8px;
+}
+
+.total {
+  margin-top: 8px;
+  border-top: 1px solid black;
+
+  h3,
+  p {
+    padding-top: 4px;
+  }
+}
+
+/* Saldoboksi END */
+
+/* Lista ite */
+.lista {
+  padding: 48px 16px;
+  height: 100%;
+
+  /* border: 1px solid red; */
+
+  /* margin-top: 16px; */
+}
+
+.info-tapahtumat,
+.tapahtumat {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  div {
+    padding: 8px;
+
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.info-tapahtumat {
+  padding-top: 16px;
+}
+
+.info-tapahtumat,
+.tapahtumat {
+  border-bottom: 1px solid var(--secondary);
+}
+
+.info-tapahtumat div:first-child,
+.tapahtumat div:first-child {
+  border-right: 1px solid var(--secondary);
+}
+
+.info-tapahtumat div:nth-child(2),
+.tapahtumat div:nth-child(2) {
+  border-right: 1px solid var(--secondary);
+}
+
+.info-tapahtumat div:last-child,
+.tapahtumat div:last-child {
+  border-left: 1px solid var(--secondary);
+}
