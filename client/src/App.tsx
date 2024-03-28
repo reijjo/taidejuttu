@@ -7,16 +7,26 @@ import Footer from "../components/Footer";
 
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [muokkaaOpen, setMuokkaaOpen] = useState(false);
 
   return (
     <Router>
       <main>
-        <Navbar modalOpen={modalOpen} setModalOpen={setModalOpen} />
+        <Navbar
+          modalOpen={modalOpen}
+          setModalOpen={setModalOpen}
+          setMuokkaaOpen={setMuokkaaOpen}
+        />
         <Routes>
           <Route
             path="/"
             element={
-              <Homepage modalOpen={modalOpen} setModalOpen={setModalOpen} />
+              <Homepage
+                modalOpen={modalOpen}
+                setModalOpen={setModalOpen}
+                muokkaaOpen={muokkaaOpen}
+                setMuokkaaOpen={setMuokkaaOpen}
+              />
             }
           />
         </Routes>

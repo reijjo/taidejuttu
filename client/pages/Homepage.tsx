@@ -1,28 +1,127 @@
-import { SyntheticEvent, useState, Dispatch, ChangeEvent } from "react";
+import {
+  SyntheticEvent,
+  useState,
+  Dispatch,
+  ChangeEvent,
+  useEffect,
+} from "react";
+import { isAxiosError } from "axios";
 
 import { Tapahtuma, Tyyppi } from "../utils/types";
+import rahaApi from "../api/rahaApi";
 import MyButton from "../components/MyButton";
+import Saldo from "../components/homepage/Saldo";
+import MyyntiOsto from "../components/homepage/MyyntiOsto";
+import Muokkaus from "../components/homepage/Muokkaus";
 
 interface Props {
   modalOpen: boolean;
   setModalOpen: Dispatch<React.SetStateAction<boolean>>;
+  muokkaaOpen: boolean;
+  setMuokkaaOpen: Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Homepage = ({ modalOpen, setModalOpen }: Props) => {
+const Homepage = ({
+  modalOpen,
+  setModalOpen,
+  muokkaaOpen,
+  setMuokkaaOpen,
+}: Props) => {
   const [uus, setUus] = useState<Tapahtuma>({
     pvm: new Date(),
     mita: "",
     info: "",
     hinta: 0,
-    tyyppi: Tyyppi.Myynti,
+    tyyppi: Tyyppi.Osto,
   });
+  const [kaikki, setKaikki] = useState<Tapahtuma[]>([]);
+  const [ostot, setOstot] = useState(0);
+  const [myynnit, setMyynnit] = useState(0);
+  const [saldo, setSaldo] = useState(0);
+  const [infoMsg, setInfoMsg] = useState<string | null>(null);
+  const [tapahtumaId, setTapahtumaId] = useState<string>("");
 
-  const lisaaUus = (event: SyntheticEvent) => {
+  // Get all
+  useEffect(() => {
+    const getAll = async () => {
+      setOstot(0);
+      setMyynnit(0);
+      setSaldo(0);
+
+      try {
+        const res = await rahaApi.getAllTapahtumat();
+        setKaikki(res);
+
+        // Myynnit ja Ostot ja Saldo
+        const laskutoimitus = res.reduce(
+          (acc, current) => ({
+            ...acc,
+            ostot:
+              acc.ostot + (current.tyyppi === Tyyppi.Osto ? current.hinta : 0),
+            myynnit:
+              acc.myynnit +
+              (current.tyyppi === Tyyppi.Myynti ? current.hinta : 0),
+          }),
+          { ostot: 0, myynnit: 0 }
+        );
+
+        const saldo = laskutoimitus.myynnit - laskutoimitus.ostot;
+
+        setOstot(laskutoimitus.ostot);
+        setMyynnit(laskutoimitus.myynnit);
+        setSaldo(saldo);
+      } catch (error: unknown) {
+        console.log("error fetching tapahtumat", error);
+      }
+    };
+    getAll();
+  }, [modalOpen, muokkaaOpen]);
+
+  // Lisaa uus
+  const lisaaUus = async (event: SyntheticEvent) => {
     event.preventDefault();
 
-    console.log("UUS", uus.pvm);
+    try {
+      const uusTapahtuma: Tapahtuma = {
+        pvm: uus.pvm,
+        mita: uus.mita,
+        info: uus.info,
+        hinta: uus.hinta,
+        tyyppi: uus.tyyppi,
+      };
+
+      const res = await rahaApi.addNewTapahtuma(uusTapahtuma);
+      console.log("uus response", res);
+      setUus({
+        pvm: new Date(),
+        mita: "",
+        info: "",
+        hinta: 0,
+        tyyppi: Tyyppi.Myynti,
+      });
+      setModalOpen(false);
+
+      // console.log("UUS", uusTapahtuma);
+    } catch (error: unknown | string) {
+      // setInfoMsg(error?.response.data.message)
+      if (isAxiosError(error)) {
+        setInfoMsg(error?.response?.data.message);
+        setTimeout(() => {
+          setInfoMsg(null);
+        }, 5000);
+        console.log("Joku errori", error?.response?.data.message);
+      }
+    }
   };
 
+  // Muokkaa
+  const avaaMuokkaus = (id: string) => {
+    setTapahtumaId(id);
+    setModalOpen(false);
+    setMuokkaaOpen(true);
+  };
+
+  // Input handler
   const handleUus = (
     event:
       | ChangeEvent<HTMLInputElement>
@@ -49,166 +148,41 @@ const Homepage = ({ modalOpen, setModalOpen }: Props) => {
     }
   };
 
-  // const parseDate = (pvm: Date) => {
-  //   const year = pvm.getFullYear();
-  //   const month = String(pvm.getMonth() + 1).padStart(2, "0");
-  //   const day = String(pvm.getDate()).padStart(2, "0");
+  console.log("kaikki", kaikki);
+  // console.log("ostot", ostot, myynnit, saldo);
+  console.log("muokkaaOpen", muokkaaOpen);
 
-  //   return `${year}-${month}-${day}`;
-  // };
-
-  // console.log("PRASE", parseDate(uus.pvm as Date));
-
+  // RETURN ALKAA
   return (
     <section>
-      <div className={modalOpen ? "overlay" : "overlay-hidden"}>
-        <div className="lisays">
-          <form onSubmit={lisaaUus}>
-            <h2>Lisää uus:</h2>
+      {/* Overlay */}
+      <div className={modalOpen || muokkaaOpen ? "overlay" : "overlay-hidden"}>
+        {/* Uus Osto/Myynti */}
+        {modalOpen && (
+          <MyyntiOsto
+            lisaaUus={lisaaUus}
+            uus={uus}
+            handleUus={handleUus}
+            infoMsg={infoMsg}
+            setModalOpen={setModalOpen}
+            setUus={setUus}
+          />
+        )}
 
-            {/* PAIVAMAARA */}
-            <div className="input-div">
-              <label htmlFor="pvm">Päivä</label>
-              <input
-                type="date"
-                name="pvm"
-                id="pvm"
-                value={uus.pvm?.toISOString().split("T")[0]}
-                onChange={handleUus}
-              />
-            </div>
-
-            {/* MITA OSTETTU / MYYTY */}
-            <div className="input-div">
-              <label htmlFor="mita">Mikä / Mitä</label>
-              <input
-                type="text"
-                placeholder="esim Taidetarvikkeet"
-                name="mita"
-                id="mita"
-                value={uus.mita}
-                onChange={handleUus}
-              />
-            </div>
-
-            {/* EXTRA INFOO */}
-            <div className="input-div">
-              <label htmlFor="info">Extra infoo</label>
-              <textarea
-                style={{
-                  minHeight: "80px",
-                  resize: "none",
-                  overflowY: "hidden",
-                  padding: "8px",
-                }}
-                placeholder="esim. Temperasta ostin tai voi jättää tyhjäks"
-                name="info"
-                id="info"
-                value={uus.info}
-                onChange={handleUus}
-              />
-            </div>
-
-            {/* HINTA */}
-            <div className="input-div">
-              <label htmlFor="mita">Hinta</label>
-              <input
-                type="text"
-                placeholder="esim 80.46"
-                name="hinta"
-                id="hinta"
-                value={uus.hinta}
-                onChange={handleUus}
-              />
-            </div>
-
-            {/* MYITKO VAI OSTITKO */}
-            <div className="select-div">
-              <label htmlFor="tyyppi">Myitkö vai Ostitko?</label>
-              <select
-                id="tyyppi"
-                name="tyyppi"
-                value={uus.tyyppi}
-                onChange={handleUus}
-              >
-                <option value={Tyyppi.Osto}>{Tyyppi.Osto}</option>
-                <option value={Tyyppi.Myynti}>{Tyyppi.Myynti}</option>
-              </select>
-            </div>
-
-            <div
-              style={{
-                padding: "4px 0",
-                textAlign: "center",
-                fontSize: "1.1rem",
-                letterSpacing: "1px",
-              }}
-            >
-              <div
-                style={{
-                  width: "100%",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                <h3>
-                  {uus.tyyppi === Tyyppi.Osto ? (
-                    <span style={{ color: "var(--secondary)" }}>
-                      {uus.mita} -{uus.hinta}&euro;
-                    </span>
-                  ) : (
-                    <span style={{ color: "var(--primary)" }}>
-                      {uus.mita} +{uus.hinta}&euro;
-                    </span>
-                  )}
-                </h3>
-              </div>
-            </div>
-
-            {/* Nappulat */}
-            <div className="lisays-nappulat">
-              <MyButton
-                className="btn-filled"
-                style={{
-                  width: "40%",
-                  padding: "8px 16px",
-                  marginRight: "8px",
-                  background: "#f5f5f5",
-                  border: "1px solid black",
-                }}
-                children="Poista"
-                type="button"
-                onClick={() => setModalOpen(false)}
-              />
-              <MyButton
-                className="btn-filled"
-                style={{ width: "40%", padding: "8px 16px", marginLeft: "8px" }}
-                children="Lisää"
-              />
-            </div>
-          </form>
-        </div>
+        {muokkaaOpen && (
+          <Muokkaus
+            lisaaUus={lisaaUus}
+            infoMsg={infoMsg}
+            setMuokkaaOpen={setMuokkaaOpen}
+            setUus={setUus}
+            id={tapahtumaId}
+          />
+        )}
       </div>
       <h1 style={{ fontSize: "32px" }}>TAIDERAHA 2024!</h1>
 
       {/* Saldoruutu */}
-      <div className="saldo">
-        <h3 style={{ borderBottom: "1px solid black" }}>Kaikki</h3>
-        <div className="ostot">
-          <h4>Ostot</h4>
-          <p>300 &euro;</p>
-        </div>
-        <div className="myynnit">
-          <h4>Myynnit</h4>
-          <p>200 &euro;</p>
-        </div>
-        <div className="total">
-          <h3>Saldo</h3>
-          <p>
-            <strong>100 &euro;</strong>
-          </p>
-        </div>
-      </div>
+      <Saldo ostot={ostot} myynnit={myynnit} saldo={saldo} />
       {/* Saldoruutu END */}
 
       {/* Ite Erittely */}
@@ -216,25 +190,64 @@ const Homepage = ({ modalOpen, setModalOpen }: Props) => {
         <div className="lista">
           <h2>Kaikki</h2>
           <div className="info-tapahtumat">
-            <div>Päivä</div>
+            <div className="pvm-osa">Päivä</div>
             <div>Mitä?</div>
-            <div>Infoo</div>
+            <div className="info-osio">Infoo</div>
             <div>&euro;</div>
+            <div>Muokkaa</div>
           </div>
-          <div className="tapahtumat">
-            <div>Päivä</div>
-
-            <div>Mitä?</div>
-            <div>infoo</div>
-            <div>&euro;</div>
-          </div>
-          <div className="tapahtumat">
-            <div>Päivä</div>
-
-            <div>Mitä?</div>
-            <div>infoo</div>
-            <div>&euro;</div>
-          </div>
+          {kaikki.map((k) => (
+            <div
+              key={k.id}
+              className={`tapahtumat ${
+                k.tyyppi === Tyyppi.Osto ? `miinusta` : `plussaa`
+              }`}
+            >
+              <div className="pvm-osa">
+                {String(k.pvm).split("T")[0].split("-").reverse().join("-")}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {k.mita}
+              </div>
+              <div className="info-osio">{k.info}</div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {k.tyyppi === Tyyppi.Osto ? `-` : `+`} {k.hinta}&euro;
+              </div>
+              <div
+                style={{
+                  height: "maxContent",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {/* <button style={{ padding: "2px 4px" }}>Muokkaa</button> */}
+                <MyButton
+                  className="btn-filled"
+                  children="Muokkaa"
+                  style={{
+                    borderRadius: "4px",
+                    padding: "2px 4px",
+                    background: "var(--white)",
+                    fontSize: "12px",
+                  }}
+                  onClick={() => avaaMuokkaus(String(k.id))}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

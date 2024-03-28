@@ -1,6 +1,11 @@
 .nav-button {
   padding: 12px 24px;
   margin: 0 16px;
+
+  @media only screen and (max-width: 768px) {
+    padding: 6px 12px;
+    margin: 0 8px;
+  }
 }
 
 .saldo {
@@ -19,6 +24,12 @@
   padding: 8px 16px;
 
   z-index: 1;
+
+  @media only screen and (max-width: 768px) {
+    width: max-content;
+    font-size: 0.9rem;
+    top: 40px;
+  }
 }
 
 .erittely {
@@ -29,6 +40,10 @@
   /* border: 1px solid black; */
   width: 100%;
   height: 100%;
+
+  @media only screen and (max-width: 768px) {
+    padding-top: 32px;
+  }
 }
 
 .ostot,
@@ -70,13 +85,31 @@
 .info-tapahtumat,
 .tapahtumat {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 10% 1fr 1fr 10% 10%;
+  /* grid-template-columns: repeat(4, 1fr); */
 
   div {
     padding: 8px;
 
     display: flex;
     justify-content: center;
+  }
+
+  @media only screen and (max-width: 768px) {
+    display: grid;
+    grid-template-columns: 1fr 20% 25%;
+
+    font-size: 0.8rem;
+  }
+}
+
+.info-osio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media only screen and (max-width: 768px) {
+    display: none;
   }
 }
 
@@ -89,9 +122,20 @@
   border-bottom: 1px solid var(--secondary);
 }
 
+.pvm-osa {
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .info-tapahtumat div:first-child,
 .tapahtumat div:first-child {
   border-right: 1px solid var(--secondary);
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 }
 
 .info-tapahtumat div:nth-child(2),
@@ -99,7 +143,31 @@
   border-right: 1px solid var(--secondary);
 }
 
+.info-tapahtumat div:nth-child(3),
+.tapahtumat div:nth-child(3) {
+  border-right: 1px solid var(--secondary);
+
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
+}
+
 .info-tapahtumat div:last-child,
 .tapahtumat div:last-child {
   border-left: 1px solid var(--secondary);
+}
+
+/* VARIJUTUT */
+.plussaa {
+  background-color: var(--primary-300);
+}
+.miinusta {
+  background-color: var(--secondary-200);
+}
+
+.plussateksti {
+  color: var(--primary);
+}
+.miinusteksti {
+  color: var(--secondary);
 }

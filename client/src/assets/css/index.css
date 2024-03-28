@@ -8,7 +8,9 @@
   --primary-600: hsl(197, 77%, 48%);
   --primary-700: hsl(197, 77%, 38%);
 
-  --secondary: #db3eb1;
+  --secondary-100: hsl(316, 69%, 90%);
+  --secondary-200: hsl(316, 69%, 85%);
+  --secondary: rgb(219, 62, 177);
 
   --bg: var(--primary-400);
   --bg2: ;
@@ -65,12 +67,38 @@ footer {
 
 nav {
   font-weight: 600;
-  justify-content: space-between;
+  justify-content: center;
 
   position: sticky;
   top: 0;
 
   z-index: 5;
+}
+
+.nav-stuff {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  height: 100%;
+
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.nav-logo {
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
+}
+
+.nav-logo-mobile {
+  display: none;
+
+  @media only screen and (max-width: 768px) {
+    display: flex;
+  }
 }
 
 .navbar {
@@ -79,7 +107,6 @@ nav {
   align-items: center;
   height: 100%;
   width: 70%;
-  max-width: 800px;
 
   a {
     padding: 0 16px;
@@ -93,6 +120,14 @@ nav {
   a:hover {
     cursor: pointer;
     background-color: lightcoral;
+  }
+
+  @media only screen and (max-width: 768px) {
+    width: max-content;
+
+    a {
+      display: none;
+    }
   }
 }
 
@@ -207,4 +242,22 @@ form {
   margin-top: 8px;
   display: flex;
   justify-content: space-between;
+}
+
+.poisto-nappula-div {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.poisto-nappula {
+  background: var(--secondary-200);
+  border: 2px solid var(--secondary);
+
+  font-family: inherit;
+  text-transform: uppercase;
+}
+
+.poisto-nappula:hover {
+  background: var(--secondary-100);
 }
