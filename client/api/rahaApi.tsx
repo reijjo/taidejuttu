@@ -1,7 +1,8 @@
 import axios from "axios";
 import { Tapahtuma } from "../utils/types";
 
-const baseUrl = "http://localhost:3001/rahat";
+// const baseUrl = "http://localhost:3001/rahat";
+const baseUrl = "https://taidejuttu.onrender.com/rahat";
 
 const getAllTapahtumat = async () => {
   const res = await axios.get<Tapahtuma[]>(baseUrl);
